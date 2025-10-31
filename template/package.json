@@ -1,0 +1,49 @@
+{
+  "name": "template_server_nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "server:build:prod": "tsc",
+    "server:start:prod": "cross-env NO_COLOR=true NODE_ENV=development node dist/index.js",
+    "server:start:dev": "cross-env NO_COLOR=true NODE_ENV=development nodemon"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@socket.io/redis-adapter": "^8.3.0",
+    "compression": "^1.8.1",
+    "connect-redis": "^9.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "express-slow-down": "^3.0.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.1",
+    "ms": "^2.1.3",
+    "pg": "^8.16.3",
+    "rate-limiter-flexible": "^8.1.0",
+    "redis": "^5.8.3",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/ms": "^2.1.0",
+    "@types/node": "^24.9.1",
+    "@types/pg": "^8.15.5",
+    "cross-env": "^10.1.0",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

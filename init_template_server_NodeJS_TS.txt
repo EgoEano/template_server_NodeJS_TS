@@ -1,0 +1,113 @@
+# Initialize project
+	npm init -y
+
+
+# Main packs
+	npm install express cors
+
+
+# Dev packs
+	npm install --save-dev cross-env 
+
+
+# For TypeScript
+	npm install --save-dev typescript ts-node @types/node @types/express @types/cors
+
+
+# Nodemon for deploy in development with hot reload
+	npm install --save-dev nodemon ts-node
+
+
+# Configure TypeScript
+	npx tsc --init
+
+
+# Configure tsconfig.json
+{
+  "compilerOptions": {
+	// File Layout
+	"rootDir": "server",
+	"outDir": "dist",
+
+	// Environment Settings (ESM)
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "types": ["node"],
+
+	"sourceMap": true,
+	"declaration": true,
+	"declarationMap": true,
+
+	// Stricter Typechecking Options
+	"noUncheckedIndexedAccess": true,
+	"exactOptionalPropertyTypes": true,
+
+	// Recommended Options
+	"strict": true,
+	"jsx": "react-jsx",
+	"verbatimModuleSyntax": true,
+	"isolatedModules": true,
+	"noUncheckedSideEffectImports": true,
+	"esModuleInterop": true,
+	"forceConsistentCasingInFileNames": true,
+	"moduleDetection": "force",
+	"skipLibCheck": true
+  },
+  "include": [
+	"server/index.ts",
+	"server/**/*"
+  ],
+  "exclude": [
+	"node_modules",
+	"docker",
+	"cert",
+	"dist",
+	"**/*.test.ts",
+	"**/__tests__/**"
+  ]
+}
+
+
+# Create and configure nodemon.json
+{
+	"watch": ["server"],
+	"ext": "ts,json",
+	"ignore": ["dist"],
+	"exec": "node --loader ts-node/esm ./server/index.ts"
+}
+
+
+# Change type in package.json
+	"type": "module"
+
+
+# Add scripts in package.json
+"scripts": {
+	"server:build:prod": "tsc",
+	"server:start:prod": "cross-env NO_COLOR=true NODE_ENV=production node dist/index.js",
+	"server:start:dev": "cross-env NO_COLOR=true NODE_ENV=development nodemon"
+},
+
+# Installing base packages
+	npm install dotenv helmet morgan cookie-parser compression rate-limiter-flexible express-rate-limit express-slow-down
+
+
+# Installing types for base packages
+	npm i --save-dev @types/morgan @types/cookie-parser @types/compression
+
+
+# Installing socket packages if it needed
+	npm install socket.io "@socket.io/redis-adapter"
+
+
+# Installing pool for Postgres connection 
+	npm install pg
+	
+# Installing types for Postgres
+	npm i --save-dev @types/pg
+
+
+# Installing pool for Redis connection 
+	npm install redis connect-redis

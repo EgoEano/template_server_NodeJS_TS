@@ -1,0 +1,5 @@
+services:
+  app:
+    build:
+      context: ${DEV_DOCKER_BUILD_CONTEXT:-.}
+      dockerfile: ${DEV_DOCKER_DOCKERFILE:-Dockerfile.app}

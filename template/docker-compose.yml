@@ -1,0 +1,46 @@
+services:
+
+  redis:
+    image: redis:alpine
+    container_name: redis_db
+    ports:
+      - ${DOCKER_REDIS_CLIENT_PORTS}
+    restart: always
+
+  db:
+    image: postgres:17-alpine
+    container_name: postgres_db
+    environment:
+      - POSTGRES_USER=${DOCKER_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${DOCKER_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${DOCKER_POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/db-init:/docker-entrypoint-initdb.d
+    ports:
+      - ${DOCKER_POSTGRES_DB_PORTS}
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      retries: 5
+      timeout: 3s
+
+  app:
+    image: ${APP_IMAGE:-project-image-app:latest}
+    container_name: node_app
+    ports:
+      - ${DOCKER_PORTS}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - .env
+    restart: always
+    volumes:
+      - ./cert:/app/cert:ro
+
+volumes:
+  pgdata:

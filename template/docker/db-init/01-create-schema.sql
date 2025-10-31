@@ -1,0 +1,6 @@
+DO $$ 
+BEGIN
+    RAISE INFO '>>>>>LOG - CREATE SCHEMA';
+    CREATE SCHEMA common;
+    CREATE SCHEMA super;
+END $$;

@@ -1,0 +1,5 @@
+DO $$ 
+BEGIN
+    RAISE INFO '>>>>>LOG - CREATE PROCEDURES';
+
+END;
