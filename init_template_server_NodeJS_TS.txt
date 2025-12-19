@@ -1,3 +1,12 @@
+# Template instruction
+1. Copy the files from the template into the root of the project with replacement.
+2. Install packages
+	npm i
+	
+3. Done
+
+
+# Manual instruction
 # Initialize project
 	npm init -y
 
