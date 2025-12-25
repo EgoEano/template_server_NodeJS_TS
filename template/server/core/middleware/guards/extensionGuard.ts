@@ -7,7 +7,7 @@ import Logger from '../loggers/loggerService.js';
 const forbiddenExtensions = [
     '.env', '.ini', '.bak', '.log', '.git', 
     '.sql', '.tar', '.gz', '.zip', '.json', 
-    '.js', '.ts', '.cgi'
+    '.ts', '.cgi'
 ];
 
 export function extensionGuard(app: Express) {

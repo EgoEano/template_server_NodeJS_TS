@@ -12,6 +12,7 @@ const routes: Route[] = [
     { method: 'get', path: '/health', middleware: [], controller: (req: Request, res: Response) => mainController.getHealthStatus(req, res) },
     { method: 'get', path: '/healthcheck', middleware: [], controller: (req: Request, res: Response) => mainController.getHealthStatus(req, res) },
     { method: 'get', path: '/favicon.ico', middleware: [], controller: (req: Request, res: Response) => mainController.getFavicon(req, res) },
+    { method: 'get', path: '/favicon.png', middleware: [], controller: (req: Request, res: Response) => mainController.getFavicon(req, res) },
     { method: 'get', path: '/info', middleware: [], controller: (req: Request, res: Response) => mainController.getInfo(req, res) },
     { method: 'get', path: /.*/, middleware: [], controller: (req: Request, res: Response) => res.status(404).send('Not Found') },
     { method: 'post', path: /.*/, middleware: [], controller: (req: Request, res: Response) => res.json({ error: "Error 404! Not Found!" }) },

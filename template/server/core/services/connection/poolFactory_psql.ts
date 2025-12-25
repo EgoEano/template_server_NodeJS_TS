@@ -1,6 +1,4 @@
 import pkg from 'pg';
-import dotenv from 'dotenv';
-dotenv.config();
 
 type ConnectionConfig = {
     user: string;
@@ -29,6 +27,19 @@ export function createPoolFactory_PSQL(overrides: Partial<ConnectionConfig> = {}
         ...overrides
     };
     const pool = new pkg.Pool(connectionConfig);
+
+    const isPoolCreated = await checkPool(pool);
+    if (!isPoolCreated) {
+        throw new Error('Database connection failed');
+    }
     console.log('PSQL pool is created');
     return pool;
 }
+
+async function checkPool(pool: PoolType): Promise<boolean> {
+    const res = await pool.query('select 1');
+    if (res.rows.length === 0) {
+        return false;
+    }
+    return true;
+}   

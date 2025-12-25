@@ -113,6 +113,10 @@ userAgentBlackList(app); // Blocking setted suspicious agents
 //userAgentWhiteList(app); // Accepting only target agents
 
 extensionGuard(app); // Blocking extensions searching
+
+app.use(express.static(path.join(process.cwd(), 'public'))); // Sharing public folder as static
+
+
 initRoutesWhitelist({
     app: app,
     admittedRoutes: usingRoutes
