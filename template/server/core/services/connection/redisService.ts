@@ -5,13 +5,12 @@ import Logger from '../../middleware/loggers/loggerService.js';
 
 import type { RedisClientOptions } from 'redis';
 
-
 type RedisManagerInitProps = {
     host: string;
     port: number;
     password?: string | null | undefined;
     options?: Partial<RedisClientOptions> & Record<string, unknown>;
-}
+};
 
 type RedisSetOptions = {
     EX?: number;
@@ -33,47 +32,48 @@ export class RedisManager {
     constructor({ host, port, password, options }: RedisManagerInitProps) {
         if (!host) throw new Error('[Redis] Host is required!');
 
-        this.connectionSettings = { 
-            host, 
-            port: port || 6379, 
+        this.connectionSettings = {
+            host,
+            port: port || 6379,
             password,
         };
 
         this.client = createClient({
-            socket: { 
-                host: this.connectionSettings.host, 
-                port: this.connectionSettings.port 
+            socket: {
+                host: this.connectionSettings.host,
+                port: this.connectionSettings.port,
             },
             ...(password ? { password } : {}),
             ...(options ?? {}),
         });
-          
-        this.client.on("error", (err: any) => {
-            Logger.error({ 
-                message: "[Redis] Redis error", 
+
+        this.client.on('error', (err: any) => {
+            Logger.error({
+                message: '[Redis] Redis error',
                 error: err,
-                source: '[Redis] Create client'
+                source: '[Redis] Create client',
             });
             process.exit(1);
         });
-        
-        this.client.on("end", () => {
-            Logger.warn({ 
-                message: "[Redis] Connection closed",
-                source: 'RedisManager. On End'
+
+        this.client.on('end', () => {
+            Logger.warn({
+                message: '[Redis] Connection closed',
+                source: 'RedisManager. On End',
             });
         });
-          
     }
 
     async connect() {
         if (this.client.isOpen) return;
         try {
             await this.client.connect();
-            console.log(`[Redis] Connected to ${this.connectionSettings.host}:${this.connectionSettings.port }`);
+            console.log(
+                `[Redis] Connected to ${this.connectionSettings.host}:${this.connectionSettings.port}`,
+            );
         } catch (err) {
-            Logger.error({ 
-                message: '[Redis] Connection error', 
+            Logger.error({
+                message: '[Redis] Connection error',
                 error: err,
                 source: 'RedisManager.connect',
             });
@@ -89,11 +89,11 @@ export class RedisManager {
     }
 
     getClient() {
-         return this.client;
+        return this.client;
     }
 
     async createStore(ttl: number) {
-        if (typeof ttl !== 'number')throw new Error('[Redis] TTL must be a number (in seconds)');
+        if (typeof ttl !== 'number') throw new Error('[Redis] TTL must be a number (in seconds)');
 
         if (!this.client.isOpen) await this.connect();
 
@@ -107,9 +107,9 @@ export class RedisManager {
 
     //#region Redis wrap Methods
     async set(
-        key: string, 
-        value: string, 
-        options: RedisSetOptions = {}
+        key: string,
+        value: string,
+        options: RedisSetOptions = {},
     ): Promise<RedisResult<string | null>> {
         try {
             const redisOptions: Record<string, any> = {
@@ -117,14 +117,14 @@ export class RedisManager {
                 ...(options.NX ? { NX: true } : {}),
                 ...(options.XX ? { XX: true } : {}),
                 ...(options.GET ? { GET: true } : {}),
-            };            
+            };
             const res = await this.client.set(key, value, redisOptions);
             return {
-                success: (redisOptions.GET) ? (res !== null) : res === "OK",
+                success: redisOptions.GET ? res !== null : res === 'OK',
                 result: res,
             };
         } catch (err: any) {
-            return {success: false, error: err};
+            return { success: false, error: err };
         }
     }
 
@@ -182,26 +182,26 @@ export class RedisManager {
             return { success: false, result: false, error: err };
         }
     }
-    
+
     multi(): ReturnType<typeof this.client.multi> {
         return this.client.multi();
     }
 
-    async watch(key: string): Promise<RedisResult<"OK" | "ERROR">> {
+    async watch(key: string): Promise<RedisResult<'OK' | 'ERROR'>> {
         try {
             const res = await this.client.watch(key);
             return { success: true, result: res };
         } catch (err: any) {
-            return { success: false, result: "ERROR", error: err };
+            return { success: false, result: 'ERROR', error: err };
         }
     }
 
-    async unwatch(): Promise<RedisResult<"OK" | "ERROR">> {
+    async unwatch(): Promise<RedisResult<'OK' | 'ERROR'>> {
         try {
             const res = await this.client.unwatch();
             return { success: true, result: res };
         } catch (err: any) {
-            return { success: false, result: "ERROR", error: err };
+            return { success: false, result: 'ERROR', error: err };
         }
     }
 
@@ -226,5 +226,3 @@ export class RedisManager {
     }
     //#endregion
 }
-
-

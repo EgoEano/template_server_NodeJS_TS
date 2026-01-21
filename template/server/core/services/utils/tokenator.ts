@@ -1,16 +1,14 @@
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import dotenv from 'dotenv';
 import fs from 'fs';
-import ms from "ms";
+import ms from 'ms';
 
-import { generateRandomHex } from "./generators.js";
+import { getEnv } from './envWorker.js';
+import { generateRandomHex } from './generators.js';
 
-import type { StringValue } from "ms";
-import type { 
-    Secret, 
-    Algorithm, 
-} from "jsonwebtoken";
+import type { StringValue } from 'ms';
+import type { Secret, Algorithm } from 'jsonwebtoken';
 import type {
     TokenSignProps,
     TokenPayload,
@@ -20,120 +18,117 @@ import type {
     VerifyOptions,
     VerifyResult,
     ModJwtPayload,
-    UserEntity
-} from "../../types/tokenTypes";
+    UserEntity,
+} from '../../types/tokenTypes';
 
+function getTokenCfg() {
+    const {
+        NODE_ENV,
+        JWT_PRIVATE_KEY_PATH,
+        JWT_PUBLIC_KEY_PATH,
+        JWT_ALGO,
+        JWT_ISSUER_URLS,
+        JWT_ACCESS_TOKEN_TTL,
+        JWT_REFRESH_TOKEN_TTL,
+        JWT_ACTION_TOKEN_TTL,
+    } = getEnv();
 
-if (!process.env.JWT_PRIVATE_KEY_PATH || !process.env.JWT_PUBLIC_KEY_PATH) {
-    throw new Error('Need to set path to JWT keys');
+    return {
+        privateKey: fs.readFileSync(JWT_PRIVATE_KEY_PATH) as Secret,
+        publicKey: fs.readFileSync(JWT_PUBLIC_KEY_PATH) as Secret,
+        algorithm: JWT_ALGO as Algorithm,
+        issuer: JWT_ISSUER_URLS,
+        access: {
+            ttl: JWT_ACCESS_TOKEN_TTL as StringValue,
+        },
+        refresh: {
+            ttl: JWT_REFRESH_TOKEN_TTL as StringValue,
+        },
+        action: {
+            ttl: JWT_ACTION_TOKEN_TTL as StringValue,
+        },
+    };
 }
 
-export const TOKEN_CFG = {
-    privateKey: (fs.readFileSync(process.env.JWT_PRIVATE_KEY_PATH)) as Secret,
-    publicKey: (fs.readFileSync(process.env.JWT_PUBLIC_KEY_PATH)) as Secret,
-    algorithm: (process.env.JWT_ALGO ?? "RS256") as Algorithm,
-    issuer: (process.env.JWT_ISSUER_URLS ?? '') as string,
-
-    access: {
-        ttl: (process.env?.JWT_ACCESS_TOKEN_TTL ?? "5m") as StringValue,
-    },
-    refresh: {
-        ttl: (process.env?.JWT_REFRESH_TOKEN_TTL ?? "10d") as StringValue,
-    },
-    action: {
-        ttl: (process.env?.JWT_ACTION_TOKEN_TTL ?? "1m") as StringValue,
-    }
-};
+export const TOKEN_CFG = {};
 
 //#region Methods
 export function generateToken(
     type: 'access' | 'refresh' | 'action',
-    payload: TokenPayload, 
-    options: TokenOptions
+    payload: TokenPayload,
+    options: TokenOptions,
 ): string {
+    const tokenCfg = getTokenCfg();
     return sign({
         payload,
-        privatekey: TOKEN_CFG.privateKey,
+        privatekey: tokenCfg.privateKey,
         options: {
-            algorithm: TOKEN_CFG.algorithm,
-            expiresIn: TOKEN_CFG[type ?? 'access']?.ttl,
-            issuer: TOKEN_CFG.issuer,
+            algorithm: tokenCfg.algorithm,
+            expiresIn: tokenCfg[type ?? 'access']?.ttl,
+            issuer: tokenCfg.issuer,
             audience: options?.aud ?? '',
             subject: options?.sub ?? '',
-            jwtid: crypto.randomUUID()
-        }
+            jwtid: crypto.randomUUID(),
+        },
     });
 }
 
 export function verifyToken(
     type: 'access' | 'refresh' | 'action',
-    token: string, 
-    options?: VerifyOptions
+    token: string,
+    options?: VerifyOptions,
 ): VerifyResult {
-    return verify(
-        token,
-        {
-            issuer: TOKEN_CFG.issuer,
-            maxAge: TOKEN_CFG[type ?? 'access']?.ttl,
-            ...(options ?? {}),
-        }
-    );
+    const tokenCfg = getTokenCfg();
+    return verify(token, {
+        issuer: tokenCfg.issuer,
+        maxAge: tokenCfg[type ?? 'access']?.ttl,
+        ...(options ?? {}),
+    });
 }
 
-function sign({
-    payload, 
-    privatekey, 
-    options
-}: TokenSignProps): string {
-    return jwt.sign(
-        payload,
-        privatekey,
-        options
-    );
+function sign({ payload, privatekey, options }: TokenSignProps): string {
+    return jwt.sign(payload, privatekey, options);
 }
 
-export function verify(
-    token: string, 
-    options?: VerifyOptions
-): VerifyResult {
+export function verify(token: string, options?: VerifyOptions): VerifyResult {
     try {
-        const decoded = jwt.verify(
-            token, 
-            TOKEN_CFG.publicKey, 
-            {
-                algorithms: [TOKEN_CFG.algorithm],
-                ...options
-            }
-        );
+        const tokenCfg = getTokenCfg();
+        const decoded = jwt.verify(token, tokenCfg.publicKey, {
+            algorithms: [tokenCfg.algorithm],
+            ...options,
+        });
 
-        if (typeof decoded === "string") {
+        if (typeof decoded === 'string') {
             return {
                 success: false,
-                error: { name: "InvalidPayload", message: "Payload expected as object, but got string" }
+                error: {
+                    name: 'InvalidPayload',
+                    message: 'Payload expected as object, but got string',
+                },
             };
         }
 
         return {
             success: true,
             payload: decoded as ModJwtPayload,
-        }; 
+        };
     } catch (err: any) {
-        let errorInfo = { name: "", message: "" };
+        let errorInfo = { name: '', message: '' };
 
         switch (err.name) {
-            case "TokenExpiredError":
-                errorInfo = { name: err.name, message: "Token has expired" };
+            case 'TokenExpiredError':
+                errorInfo = { name: err.name, message: 'Token has expired' };
                 break;
-            case "JsonWebTokenError":
-                errorInfo = { name: err.name, message: "Invalid token" };
+            case 'JsonWebTokenError':
+                errorInfo = { name: err.name, message: 'Invalid token' };
                 break;
-            case "NotBeforeError":
-                errorInfo = { name: err.name, message: "Token is not active yet" };
+            case 'NotBeforeError':
+                errorInfo = { name: err.name, message: 'Token is not active yet' };
                 break;
             default:
-                errorInfo = { 
-                    name: err.name ?? "UnknownError", 
-                    message: err.message ?? "Unknown verification error" 
+                errorInfo = {
+                    name: err.name ?? 'UnknownError',
+                    message: err.message ?? 'Unknown verification error',
                 };
         }
 
@@ -145,40 +140,39 @@ export function verify(
 }
 
 export function generateRefreshToken() {
-    return generateRandomHex(); 
+    return generateRandomHex();
 }
 
 export function parseBase64(base64: string) {
-    return Buffer.from(base64, "base64").toString("utf8");
+    return Buffer.from(base64, 'base64').toString('utf8');
 }
 
 export function decodeJwt(token: string) {
-    if (!token || typeof token !== "string" || token.length == 0) return null;
-    const [, payload] = token.split(".");
-    
+    if (!token || typeof token !== 'string' || token.length == 0) return null;
+    const [, payload] = token.split('.');
+
     if (!payload || payload.length == 0) return null;
     const json = parseBase64(payload);
     return JSON.parse(json);
 }
 
-
 /**
  * Returns Unix timestamp (in seconds) for JWT.
- * 
+ *
  * @param ttl string like "15m", "7d" or a number (in seconds)
  * @param from base time (Date.now()), defaults to current time
  * @returns Unix timestamp in seconds
  */
 export function toJwtTimestamp(
     ttl: StringValue | number | null | undefined,
-    from: number = Date.now()
+    from: number = Date.now(),
 ): number {
     if (ttl == null) {
         return Math.floor(from / 1000); // текущий момент
     }
 
-    const ttlMs = typeof ttl === "string" ? ms(ttl) : ttl * 1000;
-    if (!ttlMs) throw new Error("Invalid TTL");
+    const ttlMs = typeof ttl === 'string' ? ms(ttl) : ttl * 1000;
+    if (!ttlMs) throw new Error('Invalid TTL');
 
     return Math.floor((from + ttlMs) / 1000);
 }

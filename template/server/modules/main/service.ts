@@ -16,8 +16,8 @@ export default class MainService {
     async getDBTest(): Promise<ServiceResponse> {
         const result = await this.mainRepository.getDBTest('test param');
         return createServiceResponse({
-            success: true,
-            data: result
+            success: result.length > 0,
+            data: result,
         });
     }
 }

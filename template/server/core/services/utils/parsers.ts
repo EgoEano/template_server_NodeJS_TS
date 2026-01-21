@@ -1,19 +1,21 @@
 export function StringToObject(
     str: string,
     listSplitter: string = ',',
-    entitySplitter: string = ':'
+    entitySplitter: string = ':',
 ): Record<string, string> {
     return Object.fromEntries(
-        str.split(listSplitter).map((el: string) => el.split(entitySplitter))
+        str.split(listSplitter).map((el: string) => el.split(entitySplitter)),
     );
 }
 
 export function UnitsToDecimal(
     value: string | number | bigint,
     decimals: number,
-    isMakeFloat: boolean = false
+    isMakeFloat: boolean = false,
 ): string | number {
-    const str = BigInt(value).toString().padStart(decimals + 1, '0');
+    const str = BigInt(value)
+        .toString()
+        .padStart(decimals + 1, '0');
     const intPart = str.slice(0, -decimals) || '0';
     const fracPart = str.slice(-decimals).replace(/0+$/, '') || '0';
     const resStr = `${intPart}.${fracPart}`;

@@ -1,6 +1,5 @@
-import {pool} from '../../core/services/connection/pool.js';
+import { pool } from '../../core/services/connection/pool.js';
 import type { PoolType } from '../../core/services/connection/poolFactory_psql.js';
-
 
 export default class MainRepository {
     pool: PoolType;
@@ -11,12 +10,11 @@ export default class MainRepository {
 
     /**
      * Returns test answer
-     * @param {string} param - Test argument
+     * @param {string} _param - Test argument
      * @returns {Promise<Object|null>} - Returns data or null
      */
-        async getDBTest(param: string): Promise<any[]> {
-            const result = await this.pool.query('SELECT 1', []);
-            return result.rows;
-        }
-    
+    async getDBTest(_param: string): Promise<any[]> {
+        const result = await this.pool.query('SELECT 1', []);
+        return result.rows;
+    }
 }

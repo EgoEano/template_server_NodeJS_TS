@@ -1,4 +1,3 @@
-
 export function startAllJobs() {
     try {
         console.log('JOBS - All jobs started');

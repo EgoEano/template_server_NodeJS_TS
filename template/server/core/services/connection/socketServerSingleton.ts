@@ -1,7 +1,6 @@
-import {createSocketServer} from './socketFactory_socketIO'
+import { createSocketServer } from './socketFactory_socketIO';
 
-import type { SocketServerInitProps } from "../../types/socketEventTypes";
-
+import type { SocketServerInitProps } from '../../types/socketEventTypes';
 
 let socketServerInstance: ReturnType<typeof createSocketServer> | null = null;
 
@@ -13,6 +12,7 @@ export function initSocketServer(props: SocketServerInitProps) {
 }
 
 export function getSocketServer() {
-    if (!socketServerInstance) throw new Error("Socket server is not initialized. Call initSocketServer first.");
+    if (!socketServerInstance)
+        throw new Error('Socket server is not initialized. Call initSocketServer first.');
     return socketServerInstance;
 }

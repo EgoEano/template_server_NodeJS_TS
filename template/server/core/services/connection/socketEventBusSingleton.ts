@@ -1,5 +1,5 @@
-import { SocketEventBus } from "./socketEventBusFactory.js";
-import type { SocketServerInitProps } from "../../types/socketEventTypes";
+import { SocketEventBus } from './socketEventBusFactory.js';
+import type { SocketServerInitProps } from '../../types/socketEventTypes';
 
 export class SocketBusSingleton {
     private static instance: SocketEventBus | null = null;
@@ -14,7 +14,7 @@ export class SocketBusSingleton {
 
     static getInstance(): SocketEventBus {
         if (!SocketBusSingleton.instance) {
-            throw new Error("SocketBusSingleton not initialized — call init(props) first");
+            throw new Error('SocketBusSingleton not initialized — call init(props) first');
         }
         return SocketBusSingleton.instance;
     }

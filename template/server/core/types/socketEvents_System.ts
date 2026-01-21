@@ -1,22 +1,22 @@
 export enum SystemSocketEvents {
-    // Sys 
-    CONNECT = "connect", 
-    DISCONNECT = "disconnect", 
+    // Sys
+    CONNECT = 'connect',
+    DISCONNECT = 'disconnect',
 
-    PING = "ping",
-    PONG = "pong",
-    ERROR = "error", 
-    SERVER_MESSAGE = "server:message", // system notifications
-  
+    PING = 'ping',
+    PONG = 'pong',
+    ERROR = 'error',
+    SERVER_MESSAGE = 'server:message', // system notifications
+
     // Auth
-    AUTH_REQUIRED = "auth:required", 
-    AUTH_SUCCESS = "auth:success", 
-    AUTH_FAILED = "auth:failed", 
-  
+    AUTH_REQUIRED = 'auth:required',
+    AUTH_SUCCESS = 'auth:success',
+    AUTH_FAILED = 'auth:failed',
+
     // Common triggers
-    ENTITY_CREATED = "entity:created",
-    ENTITY_UPDATED = "entity:updated",
-    ENTITY_DELETED = "entity:deleted",
+    ENTITY_CREATED = 'entity:created',
+    ENTITY_UPDATED = 'entity:updated',
+    ENTITY_DELETED = 'entity:deleted',
 }
 
 export interface SystemEventPayloads {
@@ -27,7 +27,7 @@ export interface SystemEventPayloads {
     [SystemSocketEvents.PONG]: { timestamp: number };
     [SystemSocketEvents.ERROR]: { code: number; message: string };
     [SystemSocketEvents.SERVER_MESSAGE]: {
-        type: "info" | "warning" | "error";
+        type: 'info' | 'warning' | 'error';
         text: string;
     };
 
@@ -52,5 +52,3 @@ export interface SystemEventPayloads {
         id: string;
     };
 }
-
-  

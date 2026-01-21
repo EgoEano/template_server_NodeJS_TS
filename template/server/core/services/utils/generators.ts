@@ -1,10 +1,13 @@
-import crypto from "crypto";
+import crypto from 'crypto';
 
 export function generateUUID(): string {
     return crypto.randomUUID();
 }
 
-export function generateRandomString(length: number, chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'): string {
+export function generateRandomString(
+    length: number,
+    chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',
+): string {
     let result = '';
     const array = new Uint32Array(length);
     crypto.getRandomValues(array);
@@ -17,7 +20,9 @@ export function generateRandomString(length: number, chars = 'ABCDEFGHIJKLMNOPQR
 export function generateSecureToken(length: number = 32): string {
     const array = new Uint8Array(length);
     crypto.getRandomValues(array);
-    return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+    return Array.from(array)
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join('');
 }
 
 export function generateOTP(length: number = 6): string {
@@ -36,8 +41,8 @@ export function generateTimeId(): string {
     return `${timestamp}-${random}`;
 }
 
-export function generatePassword({length = 16}: {length?: number}): string {
-    return crypto.randomBytes(length).toString("base64").slice(0, length);
+export function generatePassword({ length = 16 }: { length?: number }): string {
+    return crypto.randomBytes(length).toString('base64').slice(0, length);
 }
 
 export function generateHash(input: string, method: string = 'sha256'): string {
@@ -50,5 +55,5 @@ export function generateHash(input: string, method: string = 'sha256'): string {
 }
 
 export function generateRandomHex(): string {
-    return crypto.randomBytes(32).toString("hex"); // 64 symbols
+    return crypto.randomBytes(32).toString('hex'); // 64 symbols
 }

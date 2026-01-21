@@ -24,7 +24,6 @@ export async function loginLimiter(req: Request, res: Response, next: NextFuncti
         next();
     } catch (err: any) {
         console.log(err);
-        
 
         res.status(429).json({ message: 'Too many request, please try later' });
     }
@@ -34,7 +33,7 @@ export async function deleteLimiter(req: Request) {
     const { login } = req.body;
 
     if (login) {
-        limiter.delete(login)
+        limiter.delete(login);
     } else {
         Logger.warn({ message: 'Blocked request without login', source: 'loginLimiter' });
     }

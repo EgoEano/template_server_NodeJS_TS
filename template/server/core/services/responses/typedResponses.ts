@@ -12,6 +12,7 @@ export type ServerResponse = {
     status: number;
     message: string;
     data?: any | null;
+    errors?: any[] | null;
 };
 
 const serverStatuses: Record<number, string> = {
@@ -24,7 +25,7 @@ const serverStatuses: Record<number, string> = {
     422: 'Unprocessable Entity',
     429: 'Too Many Requests',
     500: 'Internal Server Error',
-}
+};
 
 //#region Service
 export function createServiceResponse({
@@ -32,14 +33,14 @@ export function createServiceResponse({
     data = null,
     message = null,
     code = null,
-    errors = null
+    errors = null,
 }: ServiceResponse): ServiceResponse {
-    return { 
-        success, 
-        data, 
-        message, 
+    return {
+        success,
+        data,
+        message,
         code,
-        errors: Array.isArray(errors) ? errors : (errors ? [errors] : []),
+        errors: Array.isArray(errors) ? errors : errors ? [errors] : [],
     };
 }
 //#endregion
@@ -48,10 +49,10 @@ export function createServiceResponse({
 export function createServerResponseFromService(
     {
         success,
-        data = null,
         message = null,
+        data = null,
         code = null,
-        errors = null
+        errors = null,
     }: {
         success: boolean;
         data?: any | null;
@@ -59,7 +60,7 @@ export function createServerResponseFromService(
         code?: number | null;
         errors?: any[] | null;
     },
-    additionalCode: number | null = null
+    additionalCode: number | null = null,
 ): ServerResponse {
     let status: number;
     if (additionalCode != null && typeof additionalCode === 'number') {
@@ -70,6 +71,8 @@ export function createServerResponseFromService(
         status = 400;
     } else if ((errors?.length ?? 0) > 0) {
         status = 500;
+    } else if (code != null && typeof code === 'number') {
+        status = code;
     } else {
         status = 500;
     }
@@ -80,6 +83,7 @@ export function createServerResponseFromService(
         status,
         message: msg,
         data,
+        errors,
     };
 }
 
@@ -96,7 +100,7 @@ export function createAndSendServerJsonResponseFromService(
         code: null,
         errors: [],
     },
-    additionalCode: number | null = null
+    additionalCode: number | null = null,
 ) {
     const prepared = createServerResponseFromService(serviceResponse, additionalCode);
     return sendServerJsonResponse(res, prepared);

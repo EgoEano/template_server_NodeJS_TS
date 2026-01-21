@@ -1,45 +1,35 @@
 {
-  "compilerOptions": {
-    // File Layout
-    "rootDir": "server",
-    "outDir": "dist",
+    "compilerOptions": {
+        // File Layout
+        "rootDir": "server",
+        "outDir": "dist",
 
-    // Environment Settings (ESM)
-    "module": "esnext",
-    "moduleResolution": "node",
-    "target": "ES2020",
-    "lib": ["ES2020"],
-    "types": ["node"],
+        // Environment Settings (ESM)
+        "module": "esnext",
+        "moduleResolution": "node",
+        "target": "ES2020",
+        "lib": ["ES2020"],
+        "types": ["node"],
 
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+        "sourceMap": true,
+        "declaration": true,
+        "declarationMap": true,
 
-    // Stricter Typechecking Options
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+        // Stricter Typechecking Options
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
 
-    // Recommended Options
-    "strict": true,
-    "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "moduleDetection": "force",
-    "skipLibCheck": true
-  },
-  "include": [
-    "server/index.ts",
-    "server/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "docker",
-    "cert",
-    "dist",
-    "**/*.test.ts",
-    "**/__tests__/**"
-  ]
+        // Recommended Options
+        "strict": true,
+        "jsx": "react-jsx",
+        "verbatimModuleSyntax": true,
+        "isolatedModules": true,
+        "noUncheckedSideEffectImports": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "moduleDetection": "force",
+        "skipLibCheck": true
+    },
+    "include": ["server/index.ts", "server/**/*"],
+    "exclude": ["node_modules", "docker", "cert", "dist", "**/*.test.ts", "**/__tests__/**"]
 }

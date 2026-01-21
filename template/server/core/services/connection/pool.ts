@@ -1,37 +1,42 @@
-import {createPoolFactory_PSQL} from './poolFactory_psql.js';
-import type {PoolType} from './poolFactory_psql.js';
+import { createPoolFactory_PSQL } from './poolFactory_psql.js';
+import type { PoolType } from './poolFactory_psql.js';
 import { RedisManager } from './redisService.js';
-
-const isDev = process.env.NODE_ENV === 'development';
+import { getEnv } from '../utils/envWorker.js';
 
 let pool: PoolType;
 let redisPool: RedisManager;
 let redisLegacyPool: RedisManager;
 
 export async function initConnections() {
-    pool = createPoolFactory_PSQL();
+    const { NODE_ENV, DEV_REDIS_CLIENT_HOST, REDIS_CLIENT_HOST, REDIS_CLIENT_PORT } = getEnv();
+    const isDev = NODE_ENV === 'development';
+    try {
+        pool = await createPoolFactory_PSQL();
 
-    redisPool = new RedisManager({
-        host: (isDev ? process.env.DEV_REDIS_CLIENT_HOST : process.env.REDIS_CLIENT_HOST) || 'localhost',
-        port: Number(process.env.REDIS_CLIENT_PORT) || 6379,
-    });
-    await redisPool.connect();
+        redisPool = new RedisManager({
+            host: isDev ? DEV_REDIS_CLIENT_HOST : REDIS_CLIENT_HOST,
+            port: REDIS_CLIENT_PORT,
+        });
+        await redisPool.connect();
 
-    redisLegacyPool  = new RedisManager({
-        host: (isDev ? process.env.DEV_REDIS_CLIENT_HOST : process.env.REDIS_CLIENT_HOST) || 'localhost',
-        port: Number(process.env.REDIS_CLIENT_PORT) || 6379,
-        options: {
-            legacyMode: true,
-        }
-    });
-    await redisLegacyPool.connect();
+        redisLegacyPool = new RedisManager({
+            host: isDev ? DEV_REDIS_CLIENT_HOST : REDIS_CLIENT_HOST,
+            port: REDIS_CLIENT_PORT,
+            options: {
+                legacyMode: true,
+            },
+        });
+        await redisLegacyPool.connect();
+    } catch (error) {
+        throw new Error('Database connection failed');
+    }
 }
 
 function getPools() {
     if (!pool || !redisPool || !redisLegacyPool) {
-      throw new Error('Pools not initialized — call initConnections() first.');
+        throw new Error('Pools not initialized — call initConnections() first.');
     }
     return { pool, redisPool, redisLegacyPool };
 }
 
-export {pool, redisPool, redisLegacyPool, getPools};
+export { pool, redisPool, redisLegacyPool, getPools };

@@ -1,5 +1,4 @@
-import type { ModJwtPayload } from "./tokenTypes";
-
+import type { ModJwtPayload } from './tokenTypes';
 
 declare global {
     namespace Express {
