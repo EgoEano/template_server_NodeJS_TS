@@ -1,5 +1,7 @@
 import type { ModJwtPayload } from './tokenTypes';
 
+// Express typed through global namespace
+/* eslint-disable @typescript-eslint/no-namespace */
 declare global {
     namespace Express {
         interface Request {
@@ -7,3 +9,6 @@ declare global {
         }
     }
 }
+/* eslint-enable @typescript-eslint/no-namespace */
+
+export { };

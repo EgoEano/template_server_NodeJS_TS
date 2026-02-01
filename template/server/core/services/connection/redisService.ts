@@ -19,10 +19,10 @@ type RedisSetOptions = {
     GET?: boolean;
 };
 
-export interface RedisResult<T = any> {
+export interface RedisResult<T = unknown> {
     success: boolean;
     result?: T;
-    error?: any;
+    error?: unknown;
 }
 
 export class RedisManager {
@@ -47,7 +47,7 @@ export class RedisManager {
             ...(options ?? {}),
         });
 
-        this.client.on('error', (err: any) => {
+        this.client.on('error', (err: unknown) => {
             Logger.error({
                 message: '[Redis] Redis error',
                 error: err,
@@ -112,7 +112,7 @@ export class RedisManager {
         options: RedisSetOptions = {},
     ): Promise<RedisResult<string | null>> {
         try {
-            const redisOptions: Record<string, any> = {
+            const redisOptions: Record<string, unknown> = {
                 ...(options.EX ? { EX: options.EX } : {}),
                 ...(options.NX ? { NX: true } : {}),
                 ...(options.XX ? { XX: true } : {}),
@@ -123,7 +123,7 @@ export class RedisManager {
                 success: redisOptions.GET ? res !== null : res === 'OK',
                 result: res,
             };
-        } catch (err: any) {
+        } catch (err: unknown) {
             return { success: false, error: err };
         }
     }
@@ -132,7 +132,7 @@ export class RedisManager {
         try {
             const res = await this.client.get(key);
             return { success: res !== null, result: res };
-        } catch (err: any) {
+        } catch (err: unknown) {
             return { success: false, error: err };
         }
     }
@@ -141,7 +141,7 @@ export class RedisManager {
         try {
             const res = await this.client.del(key);
             return { success: res > 0, result: res };
-        } catch (err: any) {
+        } catch (err: unknown) {
             return { success: false, error: err };
         }
     }
@@ -150,7 +150,7 @@ export class RedisManager {
         try {
             const res = await this.client.sAdd(key, values);
             return { success: res > 0, result: res };
-        } catch (err: any) {
+        } catch (err: unknown) {
             return { success: false, error: err };
         }
     }
@@ -160,7 +160,7 @@ export class RedisManager {
         try {
             const res = await this.client.sRem(key, values);
             return { success: res > 0, result: res }; // >0 значит реально удалили
-        } catch (err: any) {
+        } catch (err: unknown) {
             return { success: false, error: err };
         }
     }
@@ -169,7 +169,7 @@ export class RedisManager {
         try {
             const res = await this.client.sMembers(key);
             return { success: true, result: res };
-        } catch (err: any) {
+        } catch (err: unknown) {
             return { success: false, result: [], error: err };
         }
     }
@@ -178,7 +178,7 @@ export class RedisManager {
         try {
             const res = await this.client.sIsMember(key, member);
             return { success: true, result: res === 1 };
-        } catch (err: any) {
+        } catch (err: unknown) {
             return { success: false, result: false, error: err };
         }
     }
@@ -191,7 +191,7 @@ export class RedisManager {
         try {
             const res = await this.client.watch(key);
             return { success: true, result: res };
-        } catch (err: any) {
+        } catch (err: unknown) {
             return { success: false, result: 'ERROR', error: err };
         }
     }
@@ -200,7 +200,7 @@ export class RedisManager {
         try {
             const res = await this.client.unwatch();
             return { success: true, result: res };
-        } catch (err: any) {
+        } catch (err: unknown) {
             return { success: false, result: 'ERROR', error: err };
         }
     }
@@ -210,7 +210,7 @@ export class RedisManager {
         try {
             const res = await this.client.exists(keys);
             return { success: res > 0, result: res }; // >0 значит какие-то ключи существуют
-        } catch (err: any) {
+        } catch (err: unknown) {
             return { success: false, error: err };
         }
     }
@@ -220,7 +220,7 @@ export class RedisManager {
         try {
             const res = await this.client.expire(key, seconds);
             return { success: res === 1, result: res }; // 1 = ttl поставлен
-        } catch (err: any) {
+        } catch (err: unknown) {
             return { success: false, error: err };
         }
     }

@@ -1,7 +1,9 @@
 import path from 'path';
+import Logger from '../loggers/loggerService.js';
+import { parseErrorMessage } from '../../services/utils/parsers.js';
+
 import type { Express, Request, Response, NextFunction } from 'express';
 
-import Logger from '../loggers/loggerService.js';
 
 const forbiddenExtensions = [
     '.env',
@@ -41,9 +43,9 @@ export function extensionGuard(app: Express) {
                 return res.status(403).send('Forbidden');
             }
             next();
-        } catch (e: any) {
+        } catch (e: unknown) {
             Logger.error({
-                message: `extensionGuard error: ${e.message}`,
+                message: `extensionGuard error: ${parseErrorMessage(e)}`,
                 source: 'extensionGuard',
             });
             return res.status(400).send('Bad Request');

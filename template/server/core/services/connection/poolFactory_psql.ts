@@ -1,5 +1,6 @@
 import pkg from 'pg';
 import { getEnv } from '../utils/envWorker.js';
+import { parseErrorMessage } from '../utils/parsers.js';
 
 type ConnectionConfig = {
     user: string;
@@ -7,10 +8,9 @@ type ConnectionConfig = {
     database: string;
     password: string;
     port: number;
-    [key: string]: any; // For overrides support
 };
 
-export interface PoolType extends pkg.Pool {}
+export type PoolType = pkg.Pool;
 
 export async function createPoolFactory_PSQL(
     overrides: Partial<ConnectionConfig> = {},
@@ -31,7 +31,7 @@ export async function createPoolFactory_PSQL(
     try {
         pool = new pkg.Pool(connectionConfig);
     } catch (error) {
-        throw new Error('Database connection failed');
+        throw new Error(`Database connection failed: ${parseErrorMessage(error)}`);
     }
 
     const isPoolCreated = await checkPool(pool);

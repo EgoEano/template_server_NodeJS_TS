@@ -1,12 +1,21 @@
 export function StringToObject(
     str: string,
-    listSplitter: string = ',',
-    entitySplitter: string = ':',
+    listSplitter = ',',
+    entitySplitter = ':',
 ): Record<string, string> {
     return Object.fromEntries(
-        str.split(listSplitter).map((el: string) => el.split(entitySplitter)),
+        str
+            .split(listSplitter)
+            .map((el): [string, string] | null => {
+                const [key, value] = el.split(entitySplitter);
+                return key && value ? [key, value] : null;
+            })
+            .filter(
+                (entry): entry is [string, string] => entry !== null
+            )
     );
 }
+
 
 export function UnitsToDecimal(
     value: string | number | bigint,
@@ -26,6 +35,32 @@ export function parseQueryString(str: string): Record<string, string> {
     return Object.fromEntries(new URLSearchParams(str)) as Record<string, string>;
 }
 
-export function getValueByPath<T = any, R = any>(obj: T, path: string): R | undefined {
-    return path.split('.').reduce<any>((acc: any, key: string) => acc?.[key], obj);
+export function getValueByPath<T, R = unknown>(
+    obj: T, path: string
+): R | undefined {
+    return path
+        .split('.')
+        .reduce<unknown>(
+            (acc: unknown, key: string) =>
+                typeof acc === 'object' && acc !== null
+                    ? (acc as Record<string, unknown>)[key]
+                    : undefined
+            , obj
+        ) as R | undefined;
+}
+
+export function parseErrorMessage(e: unknown): string {
+    if (e instanceof Error) {
+        return e.message;
+    }
+
+    if (typeof e === 'string') {
+        return e;
+    }
+
+    try {
+        return JSON.stringify(e);
+    } catch {
+        return 'Unserializable error';
+    }
 }

@@ -1,18 +1,18 @@
 import type { Response } from 'express';
 
-export type ServiceResponse = {
+export type ServiceResponse<T = unknown> = {
     success: boolean;
-    data?: any | null;
+    data?: T | null;
     message?: string | null;
     code?: number | null;
-    errors?: any[] | null;
+    errors?: string[] | null;
 };
 
-export type ServerResponse = {
+export type ServerResponse<T = unknown> = {
     status: number;
     message: string;
-    data?: any | null;
-    errors?: any[] | null;
+    data?: T | null;
+    errors?: string[] | null;
 };
 
 const serverStatuses: Record<number, string> = {
@@ -28,40 +28,26 @@ const serverStatuses: Record<number, string> = {
 };
 
 //#region Service
-export function createServiceResponse({
-    success,
-    data = null,
-    message = null,
-    code = null,
-    errors = null,
-}: ServiceResponse): ServiceResponse {
+export function createServiceResponse<T = unknown>(props: ServiceResponse<T>): ServiceResponse<T> {
+    const { errors, ...rest } = props;
     return {
-        success,
-        data,
-        message,
-        code,
+        ...rest,
         errors: Array.isArray(errors) ? errors : errors ? [errors] : [],
     };
 }
 //#endregion
 
 //#region Server
-export function createServerResponseFromService(
+export function createServerResponseFromService<T = unknown>(
     {
         success,
         message = null,
         data = null,
         code = null,
         errors = null,
-    }: {
-        success: boolean;
-        data?: any | null;
-        message?: string | null;
-        code?: number | null;
-        errors?: any[] | null;
-    },
+    }: ServiceResponse<T>,
     additionalCode: number | null = null,
-): ServerResponse {
+): ServerResponse<T> {
     let status: number;
     if (additionalCode != null && typeof additionalCode === 'number') {
         status = additionalCode;
@@ -93,13 +79,7 @@ export function sendServerJsonResponse(res: Response, respObj: ServerResponse) {
 
 export function createAndSendServerJsonResponseFromService(
     res: Response,
-    serviceResponse: ServiceResponse = {
-        success: false,
-        data: null,
-        message: null,
-        code: null,
-        errors: [],
-    },
+    serviceResponse: ServiceResponse,
     additionalCode: number | null = null,
 ) {
     const prepared = createServerResponseFromService(serviceResponse, additionalCode);

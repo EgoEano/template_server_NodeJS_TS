@@ -1,4 +1,3 @@
-import path from 'path';
 import type { Request, Response } from 'express';
 import MainService from './service.js';
 import { createAndSendServerJsonResponseFromService } from '../../core/services/responses/typedResponses.js';

@@ -2,6 +2,7 @@ import { createPoolFactory_PSQL } from './poolFactory_psql.js';
 import type { PoolType } from './poolFactory_psql.js';
 import { RedisManager } from './redisService.js';
 import { getEnv } from '../utils/envWorker.js';
+import { parseErrorMessage } from '../utils/parsers.js';
 
 let pool: PoolType;
 let redisPool: RedisManager;
@@ -28,7 +29,7 @@ export async function initConnections() {
         });
         await redisLegacyPool.connect();
     } catch (error) {
-        throw new Error('Database connection failed');
+        throw new Error(`Database connection failed: ${parseErrorMessage(error)}`);
     }
 }
 

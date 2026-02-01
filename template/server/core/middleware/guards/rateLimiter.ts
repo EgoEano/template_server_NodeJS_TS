@@ -8,7 +8,7 @@ export function applyRateLimiter(app: Express) {
             windowMs: 15 * 60 * 1000, // 15 min
             max: 100,
             legacyHeaders: false,
-            keyGenerator: (req: Request, res: Response): string => {
+            keyGenerator: (req: Request, _: Response): string => {
                 return ipKeyGenerator(req?.ip ?? '');
             },
         }),
@@ -18,7 +18,7 @@ export function applyRateLimiter(app: Express) {
         slowDown({
             windowMs: 60 * 1000,
             delayAfter: 10,
-            delayMs: (used: number, req: Request, res: Response): number => {
+            delayMs: (used: number, req: Request, _: Response): number => {
                 const slowDownInfo = (req as Request & { slowDown?: { limit: number } }).slowDown;
                 const delayAfter = slowDownInfo?.limit ?? 10;
                 return (used - delayAfter) * 1000;

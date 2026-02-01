@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import dotenv from 'dotenv';
 import fs from 'fs';
 import ms from 'ms';
 
@@ -13,17 +12,13 @@ import type {
     TokenSignProps,
     TokenPayload,
     TokenOptions,
-    TokenActionPayload,
-    SignOptions,
     VerifyOptions,
     VerifyResult,
     ModJwtPayload,
-    UserEntity,
 } from '../../types/tokenTypes';
 
 function getTokenCfg() {
     const {
-        NODE_ENV,
         JWT_PRIVATE_KEY_PATH,
         JWT_PUBLIC_KEY_PATH,
         JWT_ALGO,
@@ -112,31 +107,38 @@ export function verify(token: string, options?: VerifyOptions): VerifyResult {
             success: true,
             payload: decoded as ModJwtPayload,
         };
-    } catch (err: any) {
-        let errorInfo = { name: '', message: '' };
+    } catch (err: unknown) {
+        let errorInfo = { name: 'UnknownError', message: 'Unknown verification error' };
 
-        switch (err.name) {
-            case 'TokenExpiredError':
-                errorInfo = { name: err.name, message: 'Token has expired' };
-                break;
-            case 'JsonWebTokenError':
-                errorInfo = { name: err.name, message: 'Invalid token' };
-                break;
-            case 'NotBeforeError':
-                errorInfo = { name: err.name, message: 'Token is not active yet' };
-                break;
-            default:
-                errorInfo = {
-                    name: err.name ?? 'UnknownError',
-                    message: err.message ?? 'Unknown verification error',
-                };
+        if (isErrorWithNameMessage(err)) {
+            switch (err.name) {
+                case 'TokenExpiredError':
+                    errorInfo = { name: err.name, message: 'Token has expired' };
+                    break;
+                case 'JsonWebTokenError':
+                    errorInfo = { name: err.name, message: 'Invalid token' };
+                    break;
+                case 'NotBeforeError':
+                    errorInfo = { name: err.name, message: 'Token is not active yet' };
+                    break;
+                default:
+                    errorInfo = {
+                        name: err.name ?? 'UnknownError',
+                        message: err.message ?? 'Unknown verification error',
+                    };
+            }
         }
+
 
         return {
             success: false,
             error: errorInfo,
         };
     }
+}
+
+function isErrorWithNameMessage(err: unknown): err is { name: string; message: string } {
+    return typeof err === 'object' && err !== null && 'name' in err && 'message' in err;
 }
 
 export function generateRefreshToken() {
@@ -147,13 +149,18 @@ export function parseBase64(base64: string) {
     return Buffer.from(base64, 'base64').toString('utf8');
 }
 
-export function decodeJwt(token: string) {
+export function decodeJwt<T = unknown>(token: string) {
     if (!token || typeof token !== 'string' || token.length == 0) return null;
     const [, payload] = token.split('.');
 
     if (!payload || payload.length == 0) return null;
     const json = parseBase64(payload);
-    return JSON.parse(json);
+
+    try {
+        return JSON.parse(json) as T;
+    } catch {
+        return null;
+    }
 }
 
 /**

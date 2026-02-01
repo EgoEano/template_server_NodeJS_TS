@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import { rawBodySaverForExpressJs } from './helpers.js';
 import { applyRateLimiter } from './rateLimiter.js';
 import { setAllowedOrigins, setBlockedMethods } from './originsControl.js';
-import { userAgentBlackList, userAgentWhiteList } from './agentGuard.js';
+import { userAgentBlackList } from './agentGuard.js';
 import { extensionGuard } from './extensionGuard.js';
 import { getEnv } from '../../services/utils/envWorker.js';
 

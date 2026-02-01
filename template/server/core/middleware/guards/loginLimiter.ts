@@ -4,6 +4,16 @@ import type { Request, Response, NextFunction } from 'express';
 import Logger from '../loggers/loggerService.js';
 import { redisLegacyPool } from '../../services/connection/pool.js';
 
+interface LoginBody {
+    login: string | number;
+}
+
+type RequestWithLogin = Request<
+    Record<string, never>, // params
+    Record<string, never>, // res body
+    LoginBody               // req body
+>;
+
 const limiter = new RateLimiterRedis({
     storeClient: redisLegacyPool.getClient(),
     keyPrefix: 'login_fail',
@@ -12,7 +22,9 @@ const limiter = new RateLimiterRedis({
     blockDuration: 60 * 15, // 15 min
 });
 
-export async function loginLimiter(req: Request, res: Response, next: NextFunction) {
+export async function loginLimiter(
+    req: RequestWithLogin, res: Response, next: NextFunction
+) {
     const { login } = req.body;
     if (!login) {
         Logger.warn({ message: 'Blocked request without login', source: 'loginLimiter' });
@@ -22,18 +34,22 @@ export async function loginLimiter(req: Request, res: Response, next: NextFuncti
     try {
         await limiter.consume(login);
         next();
-    } catch (err: any) {
-        console.log(err);
-
+    } catch (err: unknown) {
+        Logger.error({ message: 'Too many request', source: 'loginLimiter', error: err });
         res.status(429).json({ message: 'Too many request, please try later' });
     }
 }
 
-export async function deleteLimiter(req: Request) {
+export async function deleteLimiter(
+    req: RequestWithLogin
+) {
     const { login } = req.body;
-
     if (login) {
-        limiter.delete(login);
+        try {
+            await limiter.delete(login);
+        } catch (err: unknown) {
+            Logger.error({ message: 'Error deleting limiter', source: 'loginLimiter', error: err });
+        }
     } else {
         Logger.warn({ message: 'Blocked request without login', source: 'loginLimiter' });
     }

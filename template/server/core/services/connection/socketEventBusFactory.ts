@@ -25,7 +25,7 @@ export class SocketEventBus {
     buildHandlers() {
         for (const event of Object.values(SocketEvents) as EventNames[]) {
             this.handlers[event] = (ctx, payload) => {
-                this.publish(event, ctx, payload as any);
+                this.publish(event, ctx, payload);
             };
         }
     }

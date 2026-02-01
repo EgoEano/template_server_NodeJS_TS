@@ -9,10 +9,10 @@ const LOG_LEVELS = {
 };
 
 class Logger {
-    debug({ message, source, isWriteDB = true }: LogParams): void {
+    debug({ message, source, isWriteDB = false }: LogParams): void {
         console.log(`[DEBUG] ${this.formatDate()} - ${message}`);
         if (isWriteDB) {
-            this.writeToDatabase({
+            void this.writeToDatabase({
                 levelKey: 'debug',
                 message,
                 source,
@@ -21,10 +21,10 @@ class Logger {
         }
     }
 
-    log({ message, source, isWriteDB = true }: LogParams): void {
+    log({ message, source, isWriteDB = false }: LogParams): void {
         console.log(`[LOG] ${this.formatDate()} - ${message}`);
         if (isWriteDB) {
-            this.writeToDatabase({
+            void this.writeToDatabase({
                 levelKey: 'log',
                 message,
                 source,
@@ -33,10 +33,10 @@ class Logger {
         }
     }
 
-    warn({ message, source, isWriteDB = true }: LogParams): void {
+    warn({ message, source, isWriteDB = false }: LogParams): void {
         console.warn(`[WARN] ${this.formatDate()} - ${message}`);
         if (isWriteDB) {
-            this.writeToDatabase({
+            void this.writeToDatabase({
                 levelKey: 'warn',
                 message,
                 source,
@@ -45,7 +45,7 @@ class Logger {
         }
     }
 
-    error({ message, error, source = null, isWriteDB = true }: ErrorParams): void {
+    error({ message, error, source = null, isWriteDB = false }: ErrorParams): void {
         console.error(`[ERROR] ${this.formatDate()} - ${message}`);
         let errs: NormalizedError[] = [];
         if (error) {
@@ -66,7 +66,7 @@ class Logger {
         }
 
         if (isWriteDB) {
-            this.writeToDatabase({
+            void this.writeToDatabase({
                 levelKey: 'error',
                 message,
                 source,
@@ -113,7 +113,7 @@ class Logger {
                     try {
                         return JSON.stringify(error);
                     } catch {
-                        return String(error);
+                        return 'Unserializable error';
                     }
                 })(),
                 stack: [],
@@ -132,10 +132,10 @@ class Logger {
 
         const level = LOG_LEVELS[levelKey as keyof typeof LOG_LEVELS];
         try {
-            // await pool.query(
-            //     `INSERT INTO common.logs (level, source, message, data) VALUES ($1, $2, $3, $4)`,
-            //     [level, source, message, error ? JSON.stringify(error) : null]
-            // );
+            await pool.query(
+                `INSERT INTO common.logs (level, source, message, data) VALUES ($1, $2, $3, $4)`,
+                [level, source, message, error ? JSON.stringify(error) : null]
+            );
         } catch (err) {
             console.error('[ERROR] Failed to write log to DB:', err);
         }

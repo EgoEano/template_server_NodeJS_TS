@@ -49,7 +49,7 @@ export function generateHash(input: string, method: string = 'sha256'): string {
     if (!input) return '';
     try {
         return crypto.createHash(method).update(input).digest('hex');
-    } catch (e) {
+    } catch {
         return '';
     }
 }
