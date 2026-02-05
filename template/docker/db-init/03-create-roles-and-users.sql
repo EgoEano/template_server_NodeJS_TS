@@ -69,7 +69,3 @@ BEGIN
     END IF;
     EXECUTE format('GRANT %I TO %I', role_name, user_name);
 END $$;
-
-
-
-

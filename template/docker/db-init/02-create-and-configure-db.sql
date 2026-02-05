@@ -1,5 +1,6 @@
 DO $$ 
 BEGIN
     RAISE INFO '>>>>>LOG - CONFIGURE DB';
+    RAISE INFO '>>>>>LOG - END CONFIGURE DB';
 END $$;
 
