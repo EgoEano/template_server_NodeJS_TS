@@ -23,7 +23,7 @@ export type Route = {
     method: HTTPMethod;
     path: string | RegExp;
     middleware: RequestHandler[];
-    controller: (req: Request, res: Response, next?: NextFunction) => any;
+    controller: (req: Request, res: Response, next?: NextFunction) => unknown;
 };
 
 export type AllowedRoute = {

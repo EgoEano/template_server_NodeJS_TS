@@ -1,5 +1,5 @@
 import { mainJobHandlers } from './main/jobs.js';
 
-export const jobRegistry: Record<string, (payload: any) => Promise<any>> = {
+export const jobRegistry: Record<string, (payload: unknown) => Promise<unknown>> = {
     ...mainJobHandlers,
 };

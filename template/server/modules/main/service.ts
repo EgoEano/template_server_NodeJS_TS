@@ -1,10 +1,8 @@
-import dotenv from 'dotenv';
 import MainRepository from './repository.js';
 import { createServiceResponse } from '../../core/services/responses/typedResponses.js';
 
 import type { ServiceResponse } from '../../core/services/responses/typedResponses.js';
 
-dotenv.config();
 
 export default class MainService {
     mainRepository: MainRepository;
@@ -16,7 +14,7 @@ export default class MainService {
     async getDBTest(): Promise<ServiceResponse> {
         const result = await this.mainRepository.getDBTest('test param');
         return createServiceResponse({
-            success: result.length > 0,
+            success: true,
             data: result,
         });
     }

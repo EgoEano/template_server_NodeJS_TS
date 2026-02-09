@@ -1,23 +1,12 @@
 import type { Response } from 'express';
 
-export type ServiceResponse<T = unknown> = {
-    success: boolean;
-    data?: T | null;
-    message?: string | null;
-    code?: number | null;
-    errors?: string[] | null;
-};
 
-export type ServerResponse<T = unknown> = {
-    status: number;
-    message: string;
-    data?: T | null;
-    errors?: string[] | null;
-};
-
-const serverStatuses: Record<number, string> = {
+const sucessServerStatuses = {
     200: 'OK',
     201: 'Created',
+};
+export type SucessStatusCode = keyof typeof sucessServerStatuses;
+export const errorServerStatuses = {
     400: 'Bad Request',
     401: 'Unauthorized',
     403: 'Forbidden',
@@ -26,51 +15,54 @@ const serverStatuses: Record<number, string> = {
     429: 'Too Many Requests',
     500: 'Internal Server Error',
 };
+export type ErrorStatusCode = keyof typeof errorServerStatuses;
+export const serverStatuses = {
+    ...sucessServerStatuses,
+    ...errorServerStatuses
+};
+export type StatusCode = keyof typeof serverStatuses;
+
+export type ServiceResponse<T = unknown> = {
+    success: true;
+    data: T;
+    code?: SucessStatusCode;
+} | {
+    success: false;
+    code: ErrorStatusCode;
+    errors: string[];
+};
+
+export type ServerResponse<T = unknown> = {
+    status: StatusCode;
+    message: string;
+    data?: T | null;
+    errors?: string[] | null;
+};
+
 
 //#region Service
 export function createServiceResponse<T = unknown>(props: ServiceResponse<T>): ServiceResponse<T> {
-    const { errors, ...rest } = props;
-    return {
-        ...rest,
-        errors: Array.isArray(errors) ? errors : errors ? [errors] : [],
-    };
+    return props;
 }
 //#endregion
 
 //#region Server
 export function createServerResponseFromService<T = unknown>(
-    {
-        success,
-        message = null,
-        data = null,
-        code = null,
-        errors = null,
-    }: ServiceResponse<T>,
-    additionalCode: number | null = null,
+    resp: ServiceResponse<T>
 ): ServerResponse<T> {
-    let status: number;
-    if (additionalCode != null && typeof additionalCode === 'number') {
-        status = additionalCode;
-    } else if (success === true) {
-        status = 200;
-    } else if (success === false && (errors?.length ?? 0) === 0) {
-        status = 400;
-    } else if ((errors?.length ?? 0) > 0) {
-        status = 500;
-    } else if (code != null && typeof code === 'number') {
-        status = code;
+    if (resp.success) {
+        return {
+            status: resp.code || 200,
+            message: serverStatuses[resp.code || 200],
+            data: resp.data
+        }
     } else {
-        status = 500;
+        return {
+            status: resp.code,
+            message: serverStatuses[resp.code],
+            errors: resp.errors
+        }
     }
-
-    const msg = typeof message === 'string' ? message : (serverStatuses[status] ?? '');
-
-    return {
-        status,
-        message: msg,
-        data,
-        errors,
-    };
 }
 
 export function sendServerJsonResponse(res: Response, respObj: ServerResponse) {
@@ -80,9 +72,8 @@ export function sendServerJsonResponse(res: Response, respObj: ServerResponse) {
 export function createAndSendServerJsonResponseFromService(
     res: Response,
     serviceResponse: ServiceResponse,
-    additionalCode: number | null = null,
 ) {
-    const prepared = createServerResponseFromService(serviceResponse, additionalCode);
+    const prepared = createServerResponseFromService(serviceResponse);
     return sendServerJsonResponse(res, prepared);
 }
 //#endregion

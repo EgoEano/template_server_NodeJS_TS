@@ -6,7 +6,6 @@ import { parseErrorMessage } from '../utils/parsers.js';
 
 let pool: PoolType;
 let redisPool: RedisManager;
-let redisLegacyPool: RedisManager;
 
 export async function initConnections() {
     const { NODE_ENV, DEV_REDIS_CLIENT_HOST, REDIS_CLIENT_HOST, REDIS_CLIENT_PORT } = getEnv();
@@ -19,25 +18,16 @@ export async function initConnections() {
             port: REDIS_CLIENT_PORT,
         });
         await redisPool.connect();
-
-        redisLegacyPool = new RedisManager({
-            host: isDev ? DEV_REDIS_CLIENT_HOST : REDIS_CLIENT_HOST,
-            port: REDIS_CLIENT_PORT,
-            options: {
-                legacyMode: true,
-            },
-        });
-        await redisLegacyPool.connect();
     } catch (error) {
         throw new Error(`Database connection failed: ${parseErrorMessage(error)}`);
     }
 }
 
 function getPools() {
-    if (!pool || !redisPool || !redisLegacyPool) {
+    if (!pool || !redisPool) {
         throw new Error('Pools not initialized — call initConnections() first.');
     }
-    return { pool, redisPool, redisLegacyPool };
+    return { pool, redisPool };
 }
 
-export { pool, redisPool, redisLegacyPool, getPools };
+export { pool, redisPool, getPools };

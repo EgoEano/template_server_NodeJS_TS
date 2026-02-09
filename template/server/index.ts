@@ -121,8 +121,8 @@ await redis_subClient.connect();
 
 // Socket IO
 const ioRedisAdapter = createSocketIORedisAdapter(
-    redis_pubClient.getClient(),
-    redis_subClient.getClient(),
+    redis_pubClient.client,
+    redis_subClient.client,
 );
 
 // Use environment variable for allowed CORS origin, fallback to '*'
